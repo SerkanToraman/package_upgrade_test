@@ -1,16 +1,24 @@
 module package_upgrade_test::hero;
 
 use std::string::String;
-
 use sui::dynamic_field as df;
 use sui::dynamic_object_field as dof;
 use sui::package;
 
+use sui::coin::{Coin};
+use sui::sui::SUI;
+
+
 use package_upgrade_test::blacksmith::{Shield, Sword};
 use package_upgrade_test::package_version::Version;
 
+const HERO_PRICE: u64 = 5_000_000_000;
+const PAYMENT_RECEIVER: address = @0x1;
+
 const EAlreadyEquipedShield: u64 = 0;
 const EAlreadyEquipedSword: u64 = 1;
+const EInvalidPrice: u64 = 2;
+const EUseMintHeroV2Instead: u64 = 3;
 
 public struct HERO() has drop;
 
@@ -25,15 +33,24 @@ fun init(otw: HERO, ctx: &mut TxContext) {
     package::claim_and_keep(otw, ctx);
 }
 
-/// Anyone can mint a hero.
-/// Hero starts with 100 heath and 10 stamina.
-public fun mint_hero(version: &Version, ctx: &mut TxContext): Hero {
+/// @deprecated: `mint_hero` is deprecated. Use `mint_hero_v2` instead.
+public fun mint_hero(_version: &Version, _ctx: &mut TxContext): Hero {
+    abort(EUseMintHeroV2Instead)
+}
+/// Anyone can mint a hero, as long as they pay `HERO_PRICE` SUI.
+/// New hero will have 100 health and 10 stamina.
+public fun mint_hero_v2(version: &Version, payment: Coin<SUI>, ctx: &mut TxContext): Hero {
     version.check_is_valid();
-    Hero {
+    let hero = Hero {
         id: object::new(ctx),
         health: 100,
         stamina: 10
-    }
+    };
+
+    assert!(payment.value() == HERO_PRICE, EInvalidPrice);
+    transfer::public_transfer(payment, PAYMENT_RECEIVER);
+
+    hero
 }
 
 /// Hero can equip a single sword.
@@ -62,6 +79,17 @@ public fun health(self: &Hero): u64 {
 
 public fun stamina(self: &Hero): u64 {
     self.stamina
+}
+/// Returns the sword the hero has equipped.
+/// Aborts if it does not exists
+public fun sword(self: &Hero): &Sword {
+    dof::borrow(&self.id, b"sword")
+}
+
+/// Returns the shield the hero has equipped.
+/// Aborts if it does not exists
+public fun shield(self: &Hero): &Shield {
+    dof::borrow(&self.id, b"shield")
 }
 
 /// Generic add dynamic object field to the hero.
