@@ -1,4 +1,4 @@
-module package_upgrade::my_module {
+module package_upgrade_test::my_module {
     use sui::balance::{Self, Balance};
     use sui::coin::Coin;
     use sui::sui::SUI;
@@ -28,7 +28,7 @@ module package_upgrade::my_module {
 }
 
 // Imagine my_module as module name. We just use a different one to appease the compiler.
-module package_upgrade::same_my_module {
+module package_upgrade_test::same_my_module {
     use sui::balance::Balance;
     use sui::coin::Coin;
     use sui::sui::SUI;

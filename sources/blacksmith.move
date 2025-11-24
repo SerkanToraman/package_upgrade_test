@@ -1,4 +1,4 @@
-module package_upgrade::blacksmith;
+module package_upgrade_test::blacksmith;
 
 use sui::package::Publisher;
 

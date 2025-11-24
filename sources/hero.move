@@ -1,4 +1,4 @@
-module package_upgrade::hero;
+module package_upgrade_test::hero;
 
 use std::string::String;
 
@@ -6,8 +6,8 @@ use sui::dynamic_field as df;
 use sui::dynamic_object_field as dof;
 use sui::package;
 
-use package_upgrade::blacksmith::{Shield, Sword};
-use package_upgrade::version::Version;
+use package_upgrade_test::blacksmith::{Shield, Sword};
+use package_upgrade_test::version::Version;
 
 const EAlreadyEquipedShield: u64 = 0;
 const EAlreadyEquipedSword: u64 = 1;
